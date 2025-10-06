@@ -1,0 +1,217 @@
+---
+title: "ReAssignment Module 6 - Transportation Model Dual"
+author: "Dibakar Bhowal"
+date: "2024-10-21"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+
+```{r}
+library(lpSolve)
+library(lpSolveAPI)
+library(tinytex)
+```
+
+
+$$Question\ 1-\ Primal\ Formulation\ and\ Solution $$
+
+$$Min\ Z = \sum_{i=1}^{4} \sum_{j=1}^{4} c_{ij} x_{ij}$$
+
+$$Where: (x_{ij})\ is\ the\ number\ of\ products\ transported\ from\ plant\ (i)\ to\ destination\ (j)$$
+$$(c_{ij})\ is\ the\ cost\ of\ producing+shipping\ one\ unit\ from\ plant\ (i)\ to\ destination\ (j)$$
+
+
+$$\text{Supply Constraints:}$$
+
+$$x_{i1} + x_{i2} + x_{i3}  \leq \text{capacity of plant } i$$
+
+$$x_{11} + x_{12} + x_{13} + x_{14} \leq 100$$
+
+$$x_{21} + x_{22} + x_{23} + x_{24} \leq 75$$
+
+$$x_{31} + x_{32} + x_{33} + x_{34} \leq 85$$
+
+$$x_{41} + x_{42} + x_{43} + x_{44} \leq 40$$
+
+$$\text{Demand Constraints:}$$
+
+$$x_{11} + x_{21} + x_{31} + x_{41} \ge 80$$
+
+$$x_{12} + x_{22} + x_{32} + x_{42} \ge 90$$
+
+$$x_{13} + x_{23} + x_{33} + x_{43} \ge 70$$
+
+$$\text{The dummy destination absorbs the surplus supply:}$$
+
+$$x_{14} + x_{24} + x_{34} + x_{44} \ge 60$$
+
+$$\text{Non-negativity Constraints:}$$
+
+$$x_{ij}\ge 0$$
+
+$$Where:
+i=1,2,3,4\ and\ j=1,2,3,4$$
+
+
+
+```{r}
+costs <- matrix(c(
+  305, 306, 312, 0,
+  203, 205, 210, 0,
+  256, 252, 256, 0,
+  153, 154, 160, 0
+), nrow = 4, byrow = TRUE)
+
+supply <- c(100, 75, 85, 40)
+
+demand <- c(80, 90, 70, 60)
+
+solution <- lp.transport(costs, "min", row.signs = rep("<=", 4), row.rhs = supply,
+                         col.signs = rep(">=", 4), col.rhs = demand)
+
+print(solution)
+
+optimal_transportation <- solution$solution
+print(optimal_transportation)
+```
+
+
+$$Question\ 2-\ Dual\ Formulation\ and\ Solution$$
+
+$$Max\ V = 80p_1 + 90p_2 + 70p_3 + 60p_4 - 100c_1 - 75c_2 - 85c_3 - 40c_4$$
+
+$$Where:(p_1, p_2, p_3)\ are\ prices\ for\ demands\ at\ destinations\ 1,\ 2,\ 3$$
+$$(p_4)\ is\ the\ price\ for\ the\ dummy\ destination\ (surplus\ capacity)$$
+$$Where:(c_1, c_2, c_3, c_4)\ are\ unit\ cost\ of\ production\ for\ supplies\ at\ source\ 1,\ 2,\ 3,\ 4$$
+
+$$\text{Dual Constraints}:$$
+
+
+$$\text{For Plant 1:}$$
+
+$$p_1 - c_1 \ge5$$
+$$\text{We know, } c_1=300$$
+$$p_1 \ge305$$
+
+$$p_2 - c_1 \ge6$$
+$$\text{We know, } c_1=300$$
+$$p_2 \ge306$$
+
+$$p_3 - c_1 \ge12$$
+$$\text{We know, } c_1=300$$
+$$p_3 \ge312$$
+
+$$p_4 - c_1 \ge0$$
+$$\text{We know, } c_1=300$$
+$$p_4 \ge300$$
+
+$$\text{For Plant 2:}$$
+
+$$p_1 - c_2 \ge3$$
+$$\text{We know, } c_2=200$$
+$$p_1 \ge203$$
+
+$$p_2 - c_2 \ge5$$
+$$\text{We know, } c_2=200$$
+$$p_2 \ge205$$
+
+$$p_3 - c_2 \ge10$$
+$$\text{We know, } c_2=200$$
+$$p_3 \ge210$$
+
+$$p_4 - c_2 \ge0$$
+$$\text{We know, } c_2=200$$
+$$p_4 \ge200$$
+
+$$\text{For Plant 3:}$$
+
+$$p_1 - c_3 \ge6$$
+$$\text{We know, } c_3=250$$
+$$p_1 \ge256$$
+
+$$p_2 - c_3 \ge2$$
+$$\text{We know, } c_3=250$$
+$$p_2 \ge252$$
+
+$$p_3 - c_3 \ge6$$
+$$\text{We know, } c_3=250$$
+$$p_3 \ge256$$
+
+$$p_4 - c_3 \ge0$$
+$$\text{We know, } c_3=250$$
+$$p_4 \ge250$$
+
+$$\text{For Plant 4:}$$
+
+$$p_1 - c_4 \ge3$$
+$$\text{We know, } c_4=150$$
+$$p_1 \ge153$$
+
+$$p_2 - c_4 \ge4$$
+$$\text{We know, } c_4=150$$
+$$p_2 \ge154$$
+
+$$p_3 - c_4 \ge10$$
+$$\text{We know, } c_4=150$$
+$$p_3 \ge160$$
+
+$$p_4 - c_4 \ge0$$
+$$\text{We know, } c_4=150$$
+$$p_4 \ge150$$
+$$\text{Non Negativity Constraint:}$$
+
+$$p_j \ge0$$
+
+$$c_i \ge0$$
+
+$$\text{where j=1,2,3,4 and i=1,2,3,4}$$
+
+$$\text{Economic Interpretation of the Dual:}$$
+
+$$\hspace{0.5cm}MR = MC\hspace{0.5cm}Rule$$
+
+$$Our\ dual\ constraint\ is\ p_j-c_i \ge TC_{ij}\ (Where,\ TC_{ij}= Transportation\ Cost)$$ 
+$$This\ means\ p_j \ge TC_{ij}+c_i$$ 
+$$To\ be\ more\ specific,\ For\ Plant\ 4:$$
+$$p_2 \ge c_4 + 4 $$
+$$\text{We know, } c_4=150$$
+$$p_2 \ge154$$  
+##Which means $154 is the per unit cost of production and shipping from Plant 4 to destination 2, since the per unit cost of production in Plant 4 is given $150. The left side is the per unit revenue received by selling one unit of the product. This is what we call MR (marginal revenue) in economics. The right side is the per unit cost of making and transporting good. This is called MC (marginal cost). Plant 4 keeps on increasing production and shipping to the destinations 2 as long as price is over $154, that is as long as MR is greater then MC. On the opposite,Plant 4 reduces production and shipping if MR is less than MC. These both are dynamic situations where either production increases or decreases. The first scenario occurs at the left side of the intersection of MR and MC curve while the later case occurs to the right of the intersection. When MR=MC, the producer neither increases production nor decreases it. This is what we call equilibrium for profit maximization. This equality of MR and MC occus at the intersection of MR and MC curve in the following graph. Thus, transportation cost minimization problem is equivalent to profit maximization in the dual and which ends up with MR=MC.
+
+##MR=MC, the universal rule of economics for profit maximization.
+
+```{r}
+library(ggplot2)
+
+Quantities <- seq(0, 500, by = 1)
+
+MR <- function(quantity) {250 - 1 * quantity} 
+MC <- function(quantity) {0.5 * quantity}
+
+Data <- data.frame(
+  Quantity = Quantities,
+  MR = MR(Quantities),
+  MC = MC(Quantities)
+)
+
+ggplot(Data, aes(x = Quantity)) +
+  geom_line(aes(y = MR, color = "MR (Marginal Revenue)"), size = 1) +    
+  geom_line(aes(y = MC, color = "MC (Marginal Cost)"), size = 1) +  
+  labs(
+    title = "MR and MC Curves (Demand and Supply) with Intersection at Quantity 160",
+    x = "Quantity",
+    y = "Price"
+  ) +
+  scale_color_manual(values = c("MR (Marginal Revenue)" = "green", "MC (Marginal Cost)" = "red")) + 
+  theme_minimal() +
+  theme(legend.title = element_blank())
+```

@@ -1,6 +1,6 @@
 # Overview
 
-This project extends the transportation optimization framework to a four-plant, four-destination network, solved using Linear Programming in R with the lpSolve and lpSolveAPI packages. The objective is to minimize total production and transportation costs while satisfying all destination demands and plant capacity constraints. A dummy destination absorbs any surplus production capacity.
+This project extends the transportation optimization framework to a four-plant, four-destination network, solved using Linear Programming with the lpSolve and lpSolveAPI packages. The objective is to minimize total production and transportation costs while satisfying all destination demands and plant capacity constraints. A dummy destination absorbs any surplus production capacity.
 
 The analysis includes both the primal and dual formulations:
 
